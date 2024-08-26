@@ -1,0 +1,48 @@
+import json
+import jwt
+from jwt.exceptions import InvalidTokenError
+
+# 秘密鍵（実際の環境では環境変数などから安全に取得してください）
+JWT_SECRET = 'MY_JWT_SECRET'
+
+def lambda_handler(event, context):
+    print(f"Event: {json.dumps(event)}")
+
+    try:
+        # Authorizationヘッダーからトークンを取得
+        token = event['authorizationToken'].replace('Bearer ', '')
+
+        # トークンを検証
+        decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+
+        print(f"Decoded token: {decoded}")
+
+        # 認証成功
+        return generate_policy('user', 'Allow', event['methodArn'])
+    
+    except InvalidTokenError:
+        # トークンが無効な場合
+        return generate_policy('user', 'Deny', event['methodArn'])
+
+def generate_policy(principal_id, effect, resource):
+    auth_response = {
+        'principalId': principal_id,
+        'policyDocument': {
+            'Version': '2012-10-17',
+            'Statement': [{
+                'Action': 'execute-api:Invoke',
+                'Effect': effect,
+                'Resource': resource
+            }]
+        }
+    }
+    
+    # オプション: コンテキスト情報を追加
+    # auth_response['context'] = {
+    #     'key': 'value',
+    #     'number': 123,
+    #     'boolean': True
+    # }
+    
+    return auth_response
+           

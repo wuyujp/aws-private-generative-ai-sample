@@ -1,21 +1,56 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import { PrivateGenerativeAiSampleStack } from '../lib/private-generative-ai-sample-stack';
+import "source-map-support/register";
+import * as cdk from "aws-cdk-lib";
+import { PrivateGenerativeAISampleAppStack } from "../lib/private-generative-ai-sample-app-stack";
+import { PrivateGenerativeAISampleRagStack } from "../lib/private-generative-ai-sample-rag-stack";
+import { PrivateGenerativeAISampleClientStack } from "../lib/private-generative-ai-sample-client-stack";
+import { PrivateGenerativeAISampleVpcStack } from "../lib/private-generative-ai-sample-vpc-stack";
 
 const app = new cdk.App();
-new PrivateGenerativeAiSampleStack(app, 'PrivateGenerativeAiSampleStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+const privateGenerativeAISampleVpcStack = new PrivateGenerativeAISampleVpcStack(
+  app,
+  "PrivateGenerativeAiSampleVpcStack",
+  {},
+);
 
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
+const ragKnowledgeBaseEnabled =
+  app.node.tryGetContext("ragKnowledgeBaseEnabled") || false;
+const privateGenerativeAISampleRagStack = ragKnowledgeBaseEnabled
+  ? new PrivateGenerativeAISampleRagStack(
+      app,
+      "PrivateGenerativeAiSampleRagStack",
+      {
+        vpc: privateGenerativeAISampleVpcStack.vpc,
+        securityGroup: privateGenerativeAISampleVpcStack.securityGroup,
+        privateOssVpcEndpoint: privateGenerativeAISampleVpcStack.privateOssVpcEndpoint,
+      },
+    )
+  : null;
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
-});
+const privateGenerativeAISampleAppStack = new PrivateGenerativeAISampleAppStack(
+  app,
+  "PrivateGenerativeAiSampleAppStack",
+  {
+    vpc: privateGenerativeAISampleVpcStack.vpc,
+    dataSourceBucketName:
+      privateGenerativeAISampleRagStack?.dataSourceBucketName,
+    knowledgeBaseId: privateGenerativeAISampleRagStack?.knowledgeBaseId,
+    securityGroup: privateGenerativeAISampleVpcStack.securityGroup,
+    privateApiVpcEndpoint: privateGenerativeAISampleVpcStack.privateApiVpcEndpoint,
+    privateApiVpcEndpointIpAdressList: privateGenerativeAISampleVpcStack.privateApiVpcEndpointIpAdressList,
+  },
+);
+
+const privateClientEnabled =
+  app.node.tryGetContext("privateClientEnabled") || false;
+const privateGenerativeAISampleClientStack = privateClientEnabled
+  ? new PrivateGenerativeAISampleClientStack(
+      app,
+      "PrivateGenerativeAiSampleClientStack",
+      {
+        vpc: privateGenerativeAISampleVpcStack.vpc,
+        securityGroup: privateGenerativeAISampleVpcStack.securityGroup,
+      },
+    )
+  : null;

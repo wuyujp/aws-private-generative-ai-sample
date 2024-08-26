@@ -1,0 +1,59 @@
+import json
+import os
+import boto3
+import jwt
+from datetime import datetime, timedelta
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table(os.environ['table_name'])
+JWT_SECRET = 'MY_JWT_SECRET'
+
+def lambda_handler(event, context):
+    try:
+        body = json.loads(event['body'])
+        username = body['email']
+        password = body['password']
+        # Authenticate user (replace with your own logic)
+        user = table.get_item(Key={'UserId': username})
+
+        if 'Item' not in user or user['Item']['Password'] != password:
+            return {
+                'statusCode': 401,
+                'headers': {
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        },
+                'body': json.dumps({'message': 'Authentication failed'})
+            }
+
+        # Generate JWT token
+        token = jwt.encode({
+            'sub': username,
+            'iat': datetime.utcnow(),
+            'exp': datetime.utcnow() + timedelta(hours=1)
+        }, JWT_SECRET, algorithm='HS256')
+
+        return {
+            'statusCode': 200,
+            'headers': {
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        },
+            'body': json.dumps({
+                'message': 'Authentication successful',
+                'token': token
+            })
+        }
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return {
+            'statusCode': 500,
+            'headers': {
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        },
+            'body': json.dumps({'message': 'Internal server error'})
+        }

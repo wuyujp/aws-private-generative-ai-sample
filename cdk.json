@@ -17,6 +17,13 @@
     ]
   },
   "context": {
+    "ragKnowledgeBaseEnabled": true,
+    "privateClientEnabled": true,
+    "embeddingModelId": "amazon.titan-embed-text-v2:0",
+    "textModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "certificateArn" : "",
+    "domainName" : "",
+    "subDomainName" : "private-genai-sample",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [
