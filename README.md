@@ -64,7 +64,7 @@ npm run ci:all
 CDK を利用したことがない場合、初回のみ [Bootstrap](https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/bootstrapping.html) 作業が必要です。すでに Bootstrap された環境では以下のコマンドは不要です。
 
 ```bash
-npx -w packages/cdk cdk bootstrap
+npm run cdk bootstrap
 ```
 
 続いて、以下のコマンドで AWS リソースをデプロイします。デプロイが完了するまで、お待ちください（20 分程度かかる場合があります）。
