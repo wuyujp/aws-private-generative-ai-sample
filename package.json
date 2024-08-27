@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc",
     "build:react": "cd react/my-app && npm run build",
+    "ci:all": "npm ci && cd react-app && npm ci"
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
