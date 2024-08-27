@@ -28,6 +28,28 @@ Private Generative AI Sample は閉域網環境での生成AI利用を加速す�
 
 </details>
 
+## cdk.jsonの編集
+
+編集が必須の項目
+
+- certificateArn
+  - AWS Certificate Manager に登録された証明書。証明書はパブリック証明書でも問題ありません。
+- domainName
+  - 証明書のドメイン名。
+
+編集が任意の項目
+
+- ragKnowledgeBaseEnabled
+  - RAG 関連のリソースを利用する場合は`true`を設定
+- privateClientEnabled
+  - 閉域アプリケーションにアクセスする Windows クライアントを利用する場合は`true`を設定
+- embeddingModelId
+  - Amazon Bedrock Knowledge bases が利用する Embedding Model
+- textModelId
+   - Amazon Bedrock が利用する Text Model
+- subdomainName
+  - アプリケーションのサブドメイン名
+
 ## デプロイ
 
 > [!IMPORTANT]
@@ -44,23 +66,6 @@ CDK を利用したことがない場合、初回のみ [Bootstrap](https://docs
 ```bash
 npx -w packages/cdk cdk bootstrap
 ```
-### cdk.jsonの編集
-編集が必須の項目
-- certificateArn
- - AWS Certificate Manager に登録された証明書。証明書はパブリック証明書でも問題ありません。
-- domainName
- - 証明書のドメイン名。
-編集が任意の項目
-- ragKnowledgeBaseEnabled
- - RAG 関連のリソースを利用する場合は`true`を設定
-- privateClientEnabled
- - 閉域アプリケーションにアクセスする Windows クライアントを利用する場合は`true`を設定
-- embeddingModelId
- - Amazon Bedrock Knowledge bases が利用する Embedding Model
-- textModelId
- - Amazon Bedrock が利用する Text Model
-
-`cdk.json`に記載している証明書 `` とそのドメイン名 `domainName` は必ず編集してください。その他項目は必要に応じて編集してください。証明書はパブリック証明書でも問題ありません。
 
 続いて、以下のコマンドで AWS リソースをデプロイします。デプロイが完了するまで、お待ちください（20 分程度かかる場合があります）。
 
