@@ -44,8 +44,23 @@ CDK を利用したことがない場合、初回のみ [Bootstrap](https://docs
 ```bash
 npx -w packages/cdk cdk bootstrap
 ```
+### cdk.jsonの編集
+編集が必須の項目
+- certificateArn
+ - AWS Certificate Manager に登録された証明書。証明書はパブリック証明書でも問題ありません。
+- domainName
+ - 証明書のドメイン名。
+編集が任意の項目
+- ragKnowledgeBaseEnabled
+ - RAG 関連のリソースを利用する場合は`true`を設定
+- privateClientEnabled
+ - 閉域アプリケーションにアクセスする Windows クライアントを利用する場合は`true`を設定
+- embeddingModelId
+ - Amazon Bedrock Knowledge bases が利用する Embedding Model
+- textModelId
+ - Amazon Bedrock が利用する Text Model
 
-`cdk.json`に記載している証明書 `certificateArn` とそのドメイン名 `domainName` は必ず編集してください。その他項目は必要に応じて編集してください。証明書はパブリック証明書でも問題ありません。
+`cdk.json`に記載している証明書 `` とそのドメイン名 `domainName` は必ず編集してください。その他項目は必要に応じて編集してください。証明書はパブリック証明書でも問題ありません。
 
 続いて、以下のコマンドで AWS リソースをデプロイします。デプロイが完了するまで、お待ちください（20 分程度かかる場合があります）。
 
@@ -55,6 +70,7 @@ npm run cdk:deploy
 Cognitoユーザープールでユーザーを作成し、Amazon Bedrockで利用するモデルを申請してください。
 [ユーザー作成参考手順](https://zenn.dev/longbridge/articles/56678cbb919d61)
 
-Outpus から `PrivateGenerativeAiSampleClientStack.GetSSHKeyCommand` でSSH Keyを取得し、Fleet ManagerでPrivate SubnetにあるWindowsにRDP接続します。次に `PrivateGenerativeAiSampleAppStack.PrivateApplicationURL` をブラウザーに入力しウェブアプリケーションにアクセスできます。
+CDK/CloudformationのOutputsから `PrivateGenerativeAiSampleClientStack.GetSSHKeyCommand` でSSH Keyを取得し、Fleet ManagerでPrivate SubnetにあるWindowsにRDP接続します。
+同じOutputs から `PrivateGenerativeAiSampleAppStack.PrivateApplicationURL` のURLをブラウザーに入力しウェブアプリケーションにアクセスできます。
 
 
