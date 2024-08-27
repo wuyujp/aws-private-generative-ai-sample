@@ -58,7 +58,7 @@ Private Generative AI Sample は閉域網環境での生成AI利用を加速す�
 まず、以下のコマンドを実行してください。全てのコマンドはリポジトリのルートで実行してください。
 
 ```bash
-npm ci
+npm run ci:all
 ```
 
 CDK を利用したことがない場合、初回のみ [Bootstrap](https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/bootstrapping.html) 作業が必要です。すでに Bootstrap された環境では以下のコマンドは不要です。
