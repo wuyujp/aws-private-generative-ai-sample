@@ -72,10 +72,12 @@ npm run cdk bootstrap
 ```bash
 npm run cdk:deploy
 ```
-Cognitoユーザープールでユーザーを作成し、Amazon Bedrockで利用するモデルを申請してください。
-[ユーザー作成参考手順](https://zenn.dev/longbridge/articles/56678cbb919d61)
 
-CDK/CloudformationのOutputsから `PrivateGenerativeAiSampleClientStack.GetSSHKeyCommand` でSSH Keyを取得し、Fleet ManagerでPrivate SubnetにあるWindowsにRDP接続します。
-同じOutputs から `PrivateGenerativeAiSampleAppStack.PrivateApplicationURL` のURLをブラウザーに入力しウェブアプリケーションにアクセスできます。
+## 利用手順
+
+1. CDK/CloudformationのOutputsから`PrivateGenerativeAiSampleClientStack.GetSSHKeyCommand`でSSH Keyを取得し、Fleet ManagerでPrivate SubnetにあるWindowsにRDP接続します。
+2. 同じOutputs から`PrivateGenerativeAiSampleAppStack.PrivateApplicationURL`のURLをブラウザーに入力しウェブアプリケーションにアクセスします。
+3. アプリのRegister画面からユーザーを作成してからそのユーザーでLoginできます。
+4. ChatまたはRagChatを選択して利用できます。
 
 
