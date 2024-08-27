@@ -1,0 +1,30 @@
+
+/* フォームスタイル（Login用） */
+.loginBox form {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+}
+
+.loginBox input {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #3a7bd5;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #333333;
+}
+
+.loginBox button {
+  padding: 10px;
+  background-color: #3a7bd5;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.loginBox button:hover {
+  background-color: #2c5d99;
+}
