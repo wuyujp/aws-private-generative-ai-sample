@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This repository is currently under development.
+
 # Private Generative AI Sample 
 
 Private Generative AI Sample は閉域網環境での生成AI利用を加速するサンプルアプリケーションのCDK実装です。
@@ -5,6 +8,25 @@ Private Generative AI Sample は閉域網環境での生成AI利用を加速す�
 ## アーキテクチャ
 
 この実装では、フロントエンドに React を採用し、静的ファイルは Amazon API Gateway + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証にはカスタム認証と Amazon Cognito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG は Amazon Bedrock Knowledge Bases, データソースには Amazon OpenSearch Serverless を利用しています。
+
+  <img src="/imgs/arch.png"/>
+
+
+## ユースケース一覧
+
+<details>
+  <summary>チャット</summary>
+
+  大規模言語モデル (LLM) とチャット形式で対話することができます。LLM と直接対話するプラットフォームが存在するおかげで、細かいユースケースや新しいユースケースに迅速に対応することができます。また、プロンプトエンジニアリングの検証用環境としても有効です。
+
+</details>
+
+<details>
+   <summary>RAG チャット</summary>
+
+  RAG は LLM が苦手な最新の情報やドメイン知識を外部から伝えることで、本来なら回答できない内容にも答えられるようにする手法です。それと同時に、根拠に基づいた回答のみを許すため、LLM にありがちな「それっぽい間違った情報」を回答させないという効果もあります。例えば、社内ドキュメントを LLM に渡せば、社内の問い合わせ対応が自動化できます。このリポジトリでは Knowledge Base から情報を取得します。
+
+</details>
 
 ## デプロイ
 
