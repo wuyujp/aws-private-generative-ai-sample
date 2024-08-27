@@ -5,13 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import { useEnv } from '../EnvProvider';
 
-const Login = () => {
+const Login = ({ setIsAuthenticated }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const [error, setError] = useState(null);
     const env = useEnv();
-    console.log('env.API_URL', env.API_URL)
 
     const handleLogin = async () => {
         try {
@@ -30,6 +29,7 @@ const Login = () => {
             const data = await response.json();
             localStorage.setItem('jwt', data.token);
             localStorage.setItem('user', email);
+            setIsAuthenticated(true);
             navigate('/home');
         }
         catch (error) {

@@ -3,58 +3,65 @@
 import { useState, useEffect } from 'react';
 import styles from '../index.module.css';
 import { useNavigate } from 'react-router-dom';
+import { useEnv } from '../EnvProvider';
+import './Login.css';
+
 
 const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [nickname, setNickname] = useState('');
     const navigate = useNavigate();
-    useEffect(() => {
-        // マウント時の処理などを記述
-        fetchData();
-    }, []);
+    const [error, setError] = useState(null);
+    const env = useEnv();
+
+    // useEffect(() => {
+    //     // マウント時の処理などを記述
+    //     fetchData();
+    // }, []);
 
     const fetchData = async () => {
         try {
-            const formData = {
-                email,
-                password,
-                nickname // nicknameをフォームデータに含める
-            };
 
             const requestOptions = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({ email, password })
             };
 
-            const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+            const apiUrl = env.API_URL;
 
-            const response = await fetch(apiUrl, requestOptions);
+            const response = await fetch(`${apiUrl}register`, requestOptions);
+            const data = await response.json();
+
             if (!response.ok) {
-                throw new Error('Registration failed');
+                console.log('Response Error', data);
+                if (data.error) {
+                    setError(data.error);
+                    throw new Error(data.error);
+                }
+                else {
+                    setError('An unknown error occurred');
+                    throw new Error('An unknown error occurred');
+                }
             }
 
-            const data = await response.json();
             console.log('Registration successful!', data);
+            navigate('/login'); // 登録後にログインページにリダイレクト
             // ここでトークンを保存するなどの処理を行う
-            localStorage.setItem('nickname', JSON.stringify(nickname)); 
-            // nicknameを文字列としてローカルストレージに保存
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Registration failed:', error);
-            // エラーメッセージを表示するなどの処理を行う
         }
     };
 
     const handleRegister = () => {
         // Registerボタンがクリックされたときの処理を記述
         fetchData();
-        navigate('/login'); // 登録後にログインページにリダイレクト
     };
 
     return (
-        <div className={styles['box']}>
-            <h2>Register(新規登録)</h2>
+        <div className="loginBox">
+            <h2>Register</h2>
             <form>
                 <input
                     type="email"
@@ -68,15 +75,10 @@ const Register = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                <input
-                    type="text"
-                    placeholder="Nickname"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)} // nicknameの入力値を更新する
-                />
                 <button type="button" onClick={handleRegister}>
                     Register
                 </button>
+                {error && <p>{error}</p>}
             </form>
         </div>
     );

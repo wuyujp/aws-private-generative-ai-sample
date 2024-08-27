@@ -62,7 +62,7 @@ export class ChatHistory extends Construct {
       {
         runtime: lambda.Runtime.PYTHON_3_10,
         code: lambda.Code.fromAsset("lambda/AddChatHistory"),
-        handler: "lambda_function.lambda_handler",
+        handler: "addChatHistory.lambda_handler",
         role: lambdaAddChatHistoryRole,
         timeout: cdk.Duration.seconds(300), // タイムアウトを5分（300秒）に設定
         environment: {

@@ -1,29 +1,25 @@
-import { Construct } from 'constructs';
+import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as apigw from "aws-cdk-lib/aws-apigateway";
 import * as lambda from "aws-cdk-lib/aws-lambda";
-import {
-  UserPool,
-} from 'aws-cdk-lib/aws-cognito';
-import { Duration } from 'aws-cdk-lib';
-
+import { UserPool } from "aws-cdk-lib/aws-cognito";
+import { Duration } from "aws-cdk-lib";
 
 export interface AuthProps {
   privateBackEndApi: apigw.LambdaRestApi;
 }
 
 export class Auth extends Construct {
-
   readonly authorizer: apigw.TokenAuthorizer;
 
   constructor(scope: Construct, id: string, props: AuthProps) {
     super(scope, id);
 
     const { privateBackEndApi } = props;
-    
+
     //Cgnito User Pool作成
-    const userPool = new UserPool(this, 'UserPool', {
+    const userPool = new UserPool(this, "UserPool", {
       selfSignUpEnabled: true,
       signInAliases: {
         username: false,
@@ -40,7 +36,7 @@ export class Auth extends Construct {
       },
     });
 
-    const client = userPool.addClient('client', {
+    const client = userPool.addClient("client", {
       idTokenValidity: Duration.days(1),
       generateSecret: false,
       authFlows: {
@@ -49,7 +45,13 @@ export class Auth extends Construct {
         userSrp: true,
       },
     });
-    
+
+    // 出力
+    new cdk.CfnOutput(this, "UserPoolId", {
+      value: userPool.userPoolId,
+      description: "The id of the user pool",
+    });
+
     // Lambda Authorizer IAMロール作成
     const lambdaAuthRole = new iam.Role(this, "lambdaAuthRole", {
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
@@ -57,11 +59,23 @@ export class Auth extends Construct {
         iam.ManagedPolicy.fromAwsManagedPolicyName(
           "service-role/AWSLambdaBasicExecutionRole",
         ),
-        iam.ManagedPolicy.fromAwsManagedPolicyName(
-          "service-role/AWSLambdaVPCAccessExecutionRole",
-        ),
+        // iam.ManagedPolicy.fromAwsManagedPolicyName(
+        //   "service-role/AWSLambdaVPCAccessExecutionRole",
+        // ),
       ],
     });
+
+    // ロールにCognitoの権限を付与
+    lambdaAuthRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "cognito-idp:InitiateAuth",
+          "cognito-idp:AdminCreateUser",
+          "cognito-idp:AdminSetUserPassword",
+        ],
+        resources: [userPool.userPoolArn],
+      }),
+    );
 
     // Lambda Authorizer 関数の作成
     const lambdaFunctionAuthorizer = new lambda.Function(
@@ -70,14 +84,14 @@ export class Auth extends Construct {
       {
         runtime: lambda.Runtime.PYTHON_3_10,
         code: lambda.Code.fromAsset("lambda/Authorizer"),
-        handler: "lambda_function.lambda_handler",
+        handler: "authorizer.lambda_handler",
         role: lambdaAuthRole,
         timeout: cdk.Duration.seconds(300), // タイムアウトを5分（300秒）に設定
         environment: {
-        //table_name: userTable.tableName,
-        cognito_client_id:client.userPoolClientId,
-        cognito_user_pool_id:userPool.userPoolId
-      },
+          //table_name: userTable.tableName,
+          cognito_client_id: client.userPoolClientId,
+          cognito_user_pool_id: userPool.userPoolId,
+        },
         // vpc: vpc,
         // vpcSubnets: {
         //   subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
@@ -92,8 +106,6 @@ export class Auth extends Construct {
       handler: lambdaFunctionAuthorizer,
       // resultsCacheTtl : Duration.seconds(300)
     });
-    
-    
 
     // // User DynamoDBテーブルの作成
     // const userTable = new dynamodb.Table(this, "UserTable", {
@@ -115,12 +127,12 @@ export class Auth extends Construct {
     const lambdaFunctionLogin = new lambda.Function(this, "MyLambdaLogin", {
       runtime: lambda.Runtime.PYTHON_3_10,
       code: lambda.Code.fromAsset("lambda/Login"),
-      handler: "lambda_function.lambda_handler",
+      handler: "login.lambda_handler",
       role: lambdaAuthRole,
       timeout: cdk.Duration.seconds(300), // タイムアウトを5分（300秒）に設定
       environment: {
         //table_name: userTable.tableName,
-        cognito_client_id:client.userPoolClientId,
+        cognito_client_id: client.userPoolClientId,
       },
       // vpc: vpc,
       // vpcSubnets: {
@@ -130,19 +142,49 @@ export class Auth extends Construct {
       // securityGroups: [securityGroup],
     });
     //userTable.grantReadWriteData(lambdaFunctionLogin);
-        // Lambda関数にCognitoの権限を付与
-    lambdaFunctionLogin.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['cognito-idp:InitiateAuth'],
-      resources: [userPool.userPoolArn],
-    }));
+    // Lambda関数にCognitoの権限を付与
+    lambdaFunctionLogin.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["cognito-idp:InitiateAuth"],
+        resources: [userPool.userPoolArn],
+      }),
+    );
 
-    // 出力
-    new cdk.CfnOutput(this, 'UserPoolId', {
-      value: userPool.userPoolId,
-      description: 'The id of the user pool',
-    });
-    
+    // サインアップのLambda関数を追加
+
+    const lambdaFunctionRegister = new lambda.Function(
+      this,
+      "MyLambdaRegister",
+      {
+        runtime: lambda.Runtime.PYTHON_3_10,
+        code: lambda.Code.fromAsset("lambda/Register"),
+        handler: "register.lambda_handler",
+        role: lambdaAuthRole,
+        timeout: cdk.Duration.seconds(300), // タイムアウトを5分（300秒）に設定
+        environment: {
+          //table_name: userTable.tableName,
+          cognito_user_pool_id: userPool.userPoolId,
+        },
+        // vpc: vpc,
+        // vpcSubnets: {
+        //   subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        // },
+        // allowPublicSubnet: false,
+        // securityGroups: [securityGroup],
+      },
+    );
+    //userTable.grantReadWriteData(lambdaFunctionLogin);
+
     const loginItems = privateBackEndApi.root.addResource("login");
-    loginItems.addMethod("POST", new apigw.LambdaIntegration(lambdaFunctionLogin));
+    loginItems.addMethod(
+      "POST",
+      new apigw.LambdaIntegration(lambdaFunctionLogin),
+    );
+
+    const registerItems = privateBackEndApi.root.addResource("register");
+    registerItems.addMethod(
+      "POST",
+      new apigw.LambdaIntegration(lambdaFunctionRegister),
+    );
   }
 }

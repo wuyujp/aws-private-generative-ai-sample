@@ -10,8 +10,14 @@ import {
   PhysicalResourceId,
 } from "aws-cdk-lib/custom-resources";
 
-const UUID = 'c54452ea-ef64-4ad4-a16c-153a67c26962';
-
+const UUID = "c54452ea-ef64-4ad4-a16c-153a67c26962";
+// VPCエンドポイント使えるAZを絞るため、リージョンとAZのマッピングを定義
+// 現時点以下3リージョンのみサポートする
+const regionToAZs: { [key: string]: string[] } = {
+  "us-east-1": ["us-east-1a", "us-east-1b"],
+  "us-west-2": ["us-west-2a", "us-west-2b"],
+  "ap-northeast-1": ["ap-northeast-1a", "ap-northeast-1c"],
+};
 
 export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
   public readonly vpc: ec2.IVpc;
@@ -23,11 +29,23 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
+    // 現在のリージョンを取得
+    const currentRegion = process.env.CDK_DEFAULT_REGION;
+    // console.log("process.env", process.env);
+    // console.log("currentRegion1", cdk.Stack.of(this).region);
+    console.log("currentRegion", currentRegion);
+    // リージョンに基づいて利用可能なAZを取得
+    
+    const availableAZs = regionToAZs[currentRegion as string] || [];
+    if (availableAZs.length === 0) {
+      throw new Error(`No AZs defined for region ${currentRegion}`);
+    }
     // VPC
     this.vpc = new ec2.Vpc(this, "Vpc", {
       ipAddresses: ec2.IpAddresses.cidr("10.0.0.0/16"),
-      maxAzs: 2,
       natGateways: 1,
+      availabilityZones: availableAZs,
+
       subnetConfiguration: [
         {
           cidrMask: 24,
@@ -75,13 +93,13 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
         open: false,
       },
     );
-    
+
     // ALBのTarget Groupで参照するため、API Gateway VPC EndpointのプライベートIPアドレスを出力
     const eni = this.getVPCEndpointENI(this.privateApiVpcEndpoint);
     // note: two ENIs in our endpoint as above, so we can get two IPs out of the response
     const ip1 = eni.getResponseField("NetworkInterfaces.0.PrivateIpAddress");
     const ip2 = eni.getResponseField("NetworkInterfaces.1.PrivateIpAddress");
-    
+
     this.privateApiVpcEndpointIpAdressList = [ip1, ip2];
 
     // Bedrock呼び出す用VPC エンドポイント
@@ -138,8 +156,7 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
       );
     }
   }
-  
-  
+
   private getVPCEndpointENI(privateApiVpcEndpoint: ec2.InterfaceVpcEndpoint) {
     const eni = new AwsCustomResource(this, "DescribeNetworkInterfaces", {
       onCreate: {

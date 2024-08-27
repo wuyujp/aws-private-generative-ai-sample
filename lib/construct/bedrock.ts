@@ -49,7 +49,7 @@ export class Bedrock extends Construct {
       {
         runtime: lambda.Runtime.PYTHON_3_10,
         code: lambda.Code.fromAsset("lambda/InvokeBedrock"),
-        handler: "lambda_function.lambda_handler",
+        handler: "invokeBedrock.lambda_handler",
         role: lambdaRole,
         timeout: cdk.Duration.seconds(300), // タイムアウトを5分（300秒）に設定
         vpc: vpc,
@@ -98,7 +98,7 @@ export class Bedrock extends Construct {
         {
           runtime: lambda.Runtime.PYTHON_3_10,
           code: lambda.Code.fromAsset("lambda/InvokeBedrockKB"),
-          handler: "lambda_function.lambda_handler",
+          handler: "invokeBedrockKB.lambda_handler",
           role: lambdaRole,
           timeout: cdk.Duration.seconds(300), // タイムアウトを5分（300秒）に設定
           environment: {
