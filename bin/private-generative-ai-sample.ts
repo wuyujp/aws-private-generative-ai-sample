@@ -10,7 +10,7 @@ const app = new cdk.App();
 
 const privateGenerativeAISampleVpcStack = new PrivateGenerativeAISampleVpcStack(
   app,
-  "PrivateGenerativeAiSampleVpcStack",
+  "PrivateGenerativeAISampleVpcStack",
   {},
 );
 
@@ -19,7 +19,7 @@ const ragKnowledgeBaseEnabled =
 const privateGenerativeAISampleRagStack = ragKnowledgeBaseEnabled
   ? new PrivateGenerativeAISampleRagStack(
       app,
-      "PrivateGenerativeAiSampleRagStack",
+      "PrivateGenerativeAISampleRagStack",
       {
         vpc: privateGenerativeAISampleVpcStack.vpc,
         securityGroup: privateGenerativeAISampleVpcStack.securityGroup,
@@ -30,7 +30,7 @@ const privateGenerativeAISampleRagStack = ragKnowledgeBaseEnabled
 
 const privateGenerativeAISampleAppStack = new PrivateGenerativeAISampleAppStack(
   app,
-  "PrivateGenerativeAiSampleAppStack",
+  "PrivateGenerativeAISampleAppStack",
   {
     vpc: privateGenerativeAISampleVpcStack.vpc,
     dataSourceBucketName:
@@ -47,7 +47,7 @@ const privateClientEnabled =
 const privateGenerativeAISampleClientStack = privateClientEnabled
   ? new PrivateGenerativeAISampleClientStack(
       app,
-      "PrivateGenerativeAiSampleClientStack",
+      "PrivateGenerativeAISampleClientStack",
       {
         vpc: privateGenerativeAISampleVpcStack.vpc,
         securityGroup: privateGenerativeAISampleVpcStack.securityGroup,

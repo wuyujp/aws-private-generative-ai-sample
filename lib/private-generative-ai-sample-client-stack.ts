@@ -21,7 +21,7 @@ export class PrivateGenerativeAISampleClientStack extends cdk.Stack {
     const privateSSMVpcEndpoint = new ec2.InterfaceVpcEndpoint(this, "privateSSMVpcEndpoint", {
       vpc: vpc,
       service: ec2.InterfaceVpcEndpointAwsService.SSM,
-      subnets: {subnets: vpc.isolatedSubnets},
+      subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
       securityGroups: [securityGroup],
       open: false,
     });
@@ -29,7 +29,7 @@ export class PrivateGenerativeAISampleClientStack extends cdk.Stack {
     const privateEc2MessagesVpcEndpoint = new ec2.InterfaceVpcEndpoint(this, "privateEc2MessagesVpcEndpoint", {
       vpc: vpc,
       service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
-      subnets: {subnets: vpc.isolatedSubnets},
+      subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
       securityGroups: [securityGroup],
       open: false,
     });
@@ -37,7 +37,7 @@ export class PrivateGenerativeAISampleClientStack extends cdk.Stack {
     const privateSSMMessagesVpcEndpoint = new ec2.InterfaceVpcEndpoint(this, "privateSSMMessagesVpcEndpoint", {
       vpc: vpc,
       service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
-      subnets: {subnets: vpc.isolatedSubnets},
+      subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
       securityGroups: [securityGroup],
       open: false,
     });
@@ -64,6 +64,7 @@ export class PrivateGenerativeAISampleClientStack extends cdk.Stack {
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
       machineImage: ec2.MachineImage.latestWindows(ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_BASE),
       vpc: vpc,
+      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
       securityGroup: securityGroup,
       keyName: Token.asString(cfnKeyPair.ref),
       role: fleetManagerRole, // iamロールを割り当てる

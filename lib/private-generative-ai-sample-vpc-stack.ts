@@ -13,11 +13,17 @@ import {
 const UUID = "c54452ea-ef64-4ad4-a16c-153a67c26962";
 // VPCエンドポイント使えるAZを絞るため、リージョンとAZのマッピングを定義
 // 現時点以下3リージョンのみサポートする
-const regionToAZs: { [key: string]: string[] } = {
-  "us-east-1": ["us-east-1a", "us-east-1b"],
-  "us-west-2": ["us-west-2a", "us-west-2b"],
-  "ap-northeast-1": ["ap-northeast-1a", "ap-northeast-1c"],
-};
+// const regionToAZs: { [key: string]: string[] } = {
+//   "us-east-1": ["us-east-1a", "us-east-1b"],
+//   "us-west-2": ["us-west-2a", "us-west-2b"],
+//   "ap-northeast-1": ["ap-northeast-1a", "ap-northeast-1c"],
+// };
+// const regionToAZs: { [key: string]: string[] } = {
+//   "us-east-1": ["use1-az1", "use1-az2"],
+//   "us-west-2": ["usw2-az1", "usw2-az2"],
+//   "ap-northeast-1": ["apne1-az1", "apne1-az2"],
+// };
+
 
 export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
   public readonly vpc: ec2.IVpc;
@@ -31,21 +37,16 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
 
     // 現在のリージョンを取得
     const currentRegion = process.env.CDK_DEFAULT_REGION;
-    // console.log("process.env", process.env);
-    // console.log("currentRegion1", cdk.Stack.of(this).region);
-    console.log("currentRegion", currentRegion);
     // リージョンに基づいて利用可能なAZを取得
-    
-    const availableAZs = regionToAZs[currentRegion as string] || [];
-    if (availableAZs.length === 0) {
-      throw new Error(`No AZs defined for region ${currentRegion}`);
-    }
+    // const availableAZs = regionToAZs[currentRegion as string] || [];
+    // if (availableAZs.length === 0) {
+    //   throw new Error(`No AZs defined for region ${currentRegion}`);
+    // }
     // VPC
     this.vpc = new ec2.Vpc(this, "Vpc", {
       ipAddresses: ec2.IpAddresses.cidr("10.0.0.0/16"),
       natGateways: 1,
-      availabilityZones: availableAZs,
-
+      maxAzs: 2,
       subnetConfiguration: [
         {
           cidrMask: 24,
@@ -82,17 +83,25 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
     });
 
     // API gateway エンドポイント
-    this.privateApiVpcEndpoint = new ec2.InterfaceVpcEndpoint(
-      this,
-      "privateApiVpcEndpoint",
-      {
-        vpc: this.vpc,
+    this.privateApiVpcEndpoint = this.vpc.addInterfaceEndpoint('privateApiVpcEndpoint', {
         service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
-        subnets: { subnets: this.vpc.isolatedSubnets },
+        subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
         securityGroups: [this.securityGroup],
-        open: false,
-      },
-    );
+      });
+    
+    
+    
+    // this.privateApiVpcEndpoint = new ec2.InterfaceVpcEndpoint(
+    //   this,
+    //   "privateApiVpcEndpoint",
+    //   {
+    //     vpc: this.vpc,
+    //     service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
+    //     subnets: { subnets: this.vpc.isolatedSubnets },
+    //     securityGroups: [this.securityGroup],
+    //     open: false,
+    //   },
+    // );
 
     // ALBのTarget Groupで参照するため、API Gateway VPC EndpointのプライベートIPアドレスを出力
     const eni = this.getVPCEndpointENI(this.privateApiVpcEndpoint);
@@ -102,33 +111,45 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
 
     this.privateApiVpcEndpointIpAdressList = [ip1, ip2];
 
+    // // Bedrock呼び出す用VPC エンドポイント
+    // const privateBedrockRuntimeVpcEndpoint = new ec2.InterfaceVpcEndpoint(
+    //   this,
+    //   "privateBedrockRuntimeVpcEndpoint",
+    //   {
+    //     vpc: this.vpc,
+    //     service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_RUNTIME,
+    //     subnets: { subnets: this.vpc.isolatedSubnets },
+    //     securityGroups: [this.securityGroup],
+    //     open: false,
+    //   },
+    // );
+    
     // Bedrock呼び出す用VPC エンドポイント
-    const privateBedrockRuntimeVpcEndpoint = new ec2.InterfaceVpcEndpoint(
-      this,
-      "privateBedrockRuntimeVpcEndpoint",
-      {
-        vpc: this.vpc,
+    this.vpc.addInterfaceEndpoint('privateBedrockRuntimeVpcEndpoint', {
         service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_RUNTIME,
-        subnets: { subnets: this.vpc.isolatedSubnets },
+        subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
         securityGroups: [this.securityGroup],
-        open: false,
-      },
-    );
+      });
 
     // Bedrock Knowledgebase使う場合はVPCエンドポイントを追加
     if (this.node.tryGetContext("ragKnowledgeBaseEnabled")) {
-      const privateBedrockAgentRuntimeVpcEndpoint =
-        new ec2.InterfaceVpcEndpoint(
-          this,
-          "privateBedrockAgentRuntimeVpcEndpoint",
-          {
-            vpc: this.vpc,
-            service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENT_RUNTIME,
-            subnets: { subnets: this.vpc.isolatedSubnets },
-            securityGroups: [this.securityGroup],
-            open: false,
-          },
-        );
+      // const privateBedrockAgentRuntimeVpcEndpoint =
+      //   new ec2.InterfaceVpcEndpoint(
+      //     this,
+      //     "privateBedrockAgentRuntimeVpcEndpoint",
+      //     {
+      //       vpc: this.vpc,
+      //       service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENT_RUNTIME,
+      //       subnets: { subnets: this.vpc.isolatedSubnets },
+      //       securityGroups: [this.securityGroup],
+      //       open: false,
+      //     },
+      //   );
+      this.vpc.addInterfaceEndpoint('privateBedrockAgentRuntimeVpcEndpoint', {
+        service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENT_RUNTIME,
+        subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        securityGroups: [this.securityGroup],
+      });
 
       this.privateOssVpcEndpoint = new oss.CfnVpcEndpoint(
         this,
@@ -142,21 +163,26 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
       );
       this.privateOssVpcEndpoint.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
 
-      const privateS3VpcEndpoint = new ec2.InterfaceVpcEndpoint(
-        this,
-        "privateS3VpcEndpoint",
-        {
-          vpc: this.vpc,
-          service: ec2.InterfaceVpcEndpointAwsService.S3,
-          subnets: { subnets: this.vpc.isolatedSubnets },
-          securityGroups: [this.securityGroup],
-          open: false,
-          privateDnsEnabled: false,
-        },
-      );
+  //     const privateS3VpcEndpoint = new ec2.InterfaceVpcEndpoint(
+  //       this,
+  //       "privateS3VpcEndpoint",
+  //       {
+  //         vpc: this.vpc,
+  //         service: ec2.InterfaceVpcEndpointAwsService.S3,
+  //         subnets: { subnets: this.vpc.isolatedSubnets },
+  //         securityGroups: [this.securityGroup],
+  //         open: false,
+  //         privateDnsEnabled: false,
+  //       },
+  //     );
+      this.vpc.addInterfaceEndpoint('privateS3VpcEndpoint', {
+        service: ec2.InterfaceVpcEndpointAwsService.S3,
+        subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        securityGroups: [this.securityGroup],
+         privateDnsEnabled: false,
+      });
     }
   }
-
   private getVPCEndpointENI(privateApiVpcEndpoint: ec2.InterfaceVpcEndpoint) {
     const eni = new AwsCustomResource(this, "DescribeNetworkInterfaces", {
       onCreate: {
