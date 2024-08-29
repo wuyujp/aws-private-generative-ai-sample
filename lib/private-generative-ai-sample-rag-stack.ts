@@ -51,7 +51,7 @@ class PrivateOpenSearchServerlessIndex extends Construct {
       'PrivateOpenSearchServerlessIndex',
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        code: lambda.Code.fromAsset('custom-resources'),
+        code: lambda.Code.fromAsset('custom-resources/oss-index'),
         handler: 'oss-index.handler',
         uuid: UUID,
         lambdaPurpose: 'PrivateOpenSearchServerlessIndex',

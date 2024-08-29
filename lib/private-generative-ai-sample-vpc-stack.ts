@@ -4,6 +4,8 @@ import { StackProps } from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as oss from "aws-cdk-lib/aws-opensearchserverless";
 import * as iam from "aws-cdk-lib/aws-iam";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as cr from "aws-cdk-lib/custom-resources";
 
 import {
   AwsCustomResource,
@@ -11,19 +13,33 @@ import {
 } from "aws-cdk-lib/custom-resources";
 
 const UUID = "c54452ea-ef64-4ad4-a16c-153a67c26962";
-// VPCエンドポイント使えるAZを絞るため、リージョンとAZのマッピングを定義
-// 現時点以下3リージョンのみサポートする
-// const regionToAZs: { [key: string]: string[] } = {
-//   "us-east-1": ["us-east-1a", "us-east-1b"],
-//   "us-west-2": ["us-west-2a", "us-west-2b"],
-//   "ap-northeast-1": ["ap-northeast-1a", "ap-northeast-1c"],
-// };
-// const regionToAZs: { [key: string]: string[] } = {
-//   "us-east-1": ["use1-az1", "use1-az2"],
-//   "us-west-2": ["usw2-az1", "usw2-az2"],
-//   "ap-northeast-1": ["apne1-az1", "apne1-az2"],
-// };
+const UUID2 = "3b0157fe-d449-9c7f-d1f7-409cfb8f0006";
 
+class GetAZs extends Construct {
+  public readonly customResourceHandler: lambda.IFunction;
+  public readonly customResource: cdk.CustomResource;
+
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
+
+    const customResourceHandler = new lambda.SingletonFunction(this, "GetAZs", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset("custom-resources/get-az"),
+      handler: "getAZ.handler",
+      uuid: UUID2,
+      lambdaPurpose: "GetAZs",
+      timeout: cdk.Duration.minutes(3),
+    });
+
+    const customResource = new cdk.CustomResource(this, "CustomResource", {
+      serviceToken: customResourceHandler.functionArn,
+      resourceType: "Custom::GetAZs",
+    });
+
+    this.customResourceHandler = customResourceHandler;
+    this.customResource = customResource;
+  }
+}
 
 export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
   public readonly vpc: ec2.IVpc;
@@ -35,18 +51,23 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // 現在のリージョンを取得
-    const currentRegion = process.env.CDK_DEFAULT_REGION;
-    // リージョンに基づいて利用可能なAZを取得
-    // const availableAZs = regionToAZs[currentRegion as string] || [];
-    // if (availableAZs.length === 0) {
-    //   throw new Error(`No AZs defined for region ${currentRegion}`);
-    // }
+    // Bedrock Agent Runtimeのエンドポイントに対応しているAZは限定されているため
+    // カスタムリソースでaz1とaz2のIDAZ名を取得してくる。
+    const azInfo = new GetAZs(this, 'GetAZs');
+    azInfo.customResourceHandler.addToRolePolicy(
+      new iam.PolicyStatement({
+          actions: ["ec2:DescribeAvailabilityZones"],
+          resources: ["*"],
+        }),
+    );
+    // オブジェクト単位取得できないため、az1とaz2のIDAZ名別々で取得
+    const az1 = azInfo.customResource.getAttString("az1");
+    const az2 = azInfo.customResource.getAttString("az2");
     // VPC
     this.vpc = new ec2.Vpc(this, "Vpc", {
       ipAddresses: ec2.IpAddresses.cidr("10.0.0.0/16"),
       natGateways: 1,
-      maxAzs: 2,
+      availabilityZones: [az1, az2],
       subnetConfiguration: [
         {
           cidrMask: 24,
@@ -65,6 +86,7 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
         },
       ],
     });
+
     //　セキュリティグループ
     this.securityGroup = new ec2.SecurityGroup(this, "sharedSecurityGroup", {
       vpc: this.vpc,
@@ -83,25 +105,14 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
     });
 
     // API gateway エンドポイント
-    this.privateApiVpcEndpoint = this.vpc.addInterfaceEndpoint('privateApiVpcEndpoint', {
+    this.privateApiVpcEndpoint = this.vpc.addInterfaceEndpoint(
+      "privateApiVpcEndpoint",
+      {
         service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
         subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
         securityGroups: [this.securityGroup],
-      });
-    
-    
-    
-    // this.privateApiVpcEndpoint = new ec2.InterfaceVpcEndpoint(
-    //   this,
-    //   "privateApiVpcEndpoint",
-    //   {
-    //     vpc: this.vpc,
-    //     service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
-    //     subnets: { subnets: this.vpc.isolatedSubnets },
-    //     securityGroups: [this.securityGroup],
-    //     open: false,
-    //   },
-    // );
+      },
+    );
 
     // ALBのTarget Groupで参照するため、API Gateway VPC EndpointのプライベートIPアドレスを出力
     const eni = this.getVPCEndpointENI(this.privateApiVpcEndpoint);
@@ -111,41 +122,16 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
 
     this.privateApiVpcEndpointIpAdressList = [ip1, ip2];
 
-    // // Bedrock呼び出す用VPC エンドポイント
-    // const privateBedrockRuntimeVpcEndpoint = new ec2.InterfaceVpcEndpoint(
-    //   this,
-    //   "privateBedrockRuntimeVpcEndpoint",
-    //   {
-    //     vpc: this.vpc,
-    //     service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_RUNTIME,
-    //     subnets: { subnets: this.vpc.isolatedSubnets },
-    //     securityGroups: [this.securityGroup],
-    //     open: false,
-    //   },
-    // );
-    
     // Bedrock呼び出す用VPC エンドポイント
-    this.vpc.addInterfaceEndpoint('privateBedrockRuntimeVpcEndpoint', {
-        service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_RUNTIME,
-        subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
-        securityGroups: [this.securityGroup],
-      });
+    this.vpc.addInterfaceEndpoint("privateBedrockRuntimeVpcEndpoint", {
+      service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_RUNTIME,
+      subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      securityGroups: [this.securityGroup],
+    });
 
     // Bedrock Knowledgebase使う場合はVPCエンドポイントを追加
     if (this.node.tryGetContext("ragKnowledgeBaseEnabled")) {
-      // const privateBedrockAgentRuntimeVpcEndpoint =
-      //   new ec2.InterfaceVpcEndpoint(
-      //     this,
-      //     "privateBedrockAgentRuntimeVpcEndpoint",
-      //     {
-      //       vpc: this.vpc,
-      //       service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENT_RUNTIME,
-      //       subnets: { subnets: this.vpc.isolatedSubnets },
-      //       securityGroups: [this.securityGroup],
-      //       open: false,
-      //     },
-      //   );
-      this.vpc.addInterfaceEndpoint('privateBedrockAgentRuntimeVpcEndpoint', {
+      this.vpc.addInterfaceEndpoint("privateBedrockAgentRuntimeVpcEndpoint", {
         service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENT_RUNTIME,
         subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
         securityGroups: [this.securityGroup],
@@ -163,23 +149,11 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
       );
       this.privateOssVpcEndpoint.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
 
-  //     const privateS3VpcEndpoint = new ec2.InterfaceVpcEndpoint(
-  //       this,
-  //       "privateS3VpcEndpoint",
-  //       {
-  //         vpc: this.vpc,
-  //         service: ec2.InterfaceVpcEndpointAwsService.S3,
-  //         subnets: { subnets: this.vpc.isolatedSubnets },
-  //         securityGroups: [this.securityGroup],
-  //         open: false,
-  //         privateDnsEnabled: false,
-  //       },
-  //     );
-      this.vpc.addInterfaceEndpoint('privateS3VpcEndpoint', {
+      this.vpc.addInterfaceEndpoint("privateS3VpcEndpoint", {
         service: ec2.InterfaceVpcEndpointAwsService.S3,
         subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
         securityGroups: [this.securityGroup],
-         privateDnsEnabled: false,
+        privateDnsEnabled: false,
       });
     }
   }
@@ -214,4 +188,5 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
     });
     return eni;
   }
+
 }
