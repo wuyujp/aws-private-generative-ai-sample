@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "build:react": "cd react/my-app && npm run build",
-    "ci:all": "npm ci && cd react/my-app && npm ci",
+    "ci:all": "npm ci && npm ci --prefix react/my-app && npm ci --prefix custom-resources/oss-index",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
