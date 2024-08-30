@@ -37,18 +37,21 @@ Private Generative AI Sample は閉域網環境での生成AI利用を加速す�
 - domainName
   - 証明書のドメイン名
 
+> [!IMPORTANT]
+> ウェブアプリケーションへのアクセスにHTTPS通信が必須のため証明書は必要です。認証されたドメインの証明書登録が難しい場合は、信頼されていないドメインへのアクセスを許可する前提で、自己証明書も一応利用可能です。自己証明書の登録手順はこちらご参照ください。[CloudShellでサクッと自己証明書を作成してACMにインポートする](https://dev.classmethod.jp/articles/aws-acm-import-cloudshell/)
+
 <img src="/imgs/acm.png"/>
 
-編集が **必須** の項目
+編集が **任意** の項目
 
 - ragKnowledgeBaseEnabled
   - RAG 関連のリソースを利用する場合は`true`を設定します。
 - privateClientEnabled
   - 閉域アプリケーションにアクセスする Windows クライアントを利用する場合は`true`を設定します。
 - embeddingModelId
-  - Amazon Bedrock Knowledge bases が利用する Embedding Model。単一モデルの未選択可能です。
+  - Amazon Bedrock Knowledge bases が利用する Embedding Model。単一モデルのみ選択可能です。
 - textModelId
-   - Amazon Bedrock が利用する Text Model。現時点は単一モデルの未選択可能です。
+   - Amazon Bedrock が利用する Text Model。現時点は単一モデルのみ選択可能です。
 - subdomainName
   - アプリケーションのサブドメイン名。 `<subdomainName>.<domainName>` が閉域アプリケーションのアクセスURLとなります。
 ## デプロイ
@@ -78,9 +81,9 @@ npm run cdk:deploy
 
 1. 利用するリージョンの Amazon Bedrock のコンソールから利用する Embedding Model と Text Model を有効化します。
 2. Amazon Bedrock Knowledge bases のコンソール画面でデータソースを選択して Sync を実施します。
-3. CDK/CloudformationのOutputsから`PrivateGenerativeAiSampleClientStack.GetSSHKeyCommand`でSSH Keyを取得し、Fleet ManagerでPrivate SubnetにあるWindowsにRDP接続します。
-4. 同じOutputs から`PrivateGenerativeAiSampleAppStack.PrivateApplicationURL`のURLをブラウザーに入力しウェブアプリケーションにアクセスします。
-5. アプリのRegister画面からユーザーを作成し、そのユーザーでLoginできます。
-6. ChatまたはRagChatを選択して生成AIと会話しましょう。
+3. CDK / Cloudformation の Outputs から `PrivateGenerativeAiSampleClientStack.GetSSHKeyCommand` で SSH Key を取得し、Fleet Manager で Private Subnet にある Windows に RDP 接続します。
+4. 同じOutputs から `PrivateGenerativeAiSampleAppStack.PrivateApplicationURL` のU RL をブラウザーに入力しウェブアプリケーションにアクセスします。
+5. アプリの Register 画面からユーザーを作成し、そのユーザーでLoginできます。
+6. Chat または RagChat を選択して生成AIと会話しましょう。
 
 
