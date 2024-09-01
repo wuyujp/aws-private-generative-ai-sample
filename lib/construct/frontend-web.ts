@@ -10,6 +10,7 @@ import * as elbv2Targets from "aws-cdk-lib/aws-elasticloadbalancingv2-targets";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as route53Targets from "aws-cdk-lib/aws-route53-targets";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
+import { Size } from 'aws-cdk-lib';
 
 export interface FrontendWebProps {
   vpc: ec2.IVpc;
@@ -101,7 +102,7 @@ export class FrontendWeb extends Construct {
       restApiName: "PrivateGenerativeAISampleAssetsProvider",
       description: "Serves assets from the s3 bucket.",
       binaryMediaTypes: ["*/*"],
-      minimumCompressionSize: 0,
+      minCompressionSize: Size.kibibytes(1),
       endpointConfiguration: {
         types: [apigw.EndpointType.PRIVATE],
         vpcEndpoints: [privateApiVpcEndpoint],

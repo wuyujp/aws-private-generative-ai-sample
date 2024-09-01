@@ -50,23 +50,32 @@ export class PrivateGenerativeAISampleClientStack extends cdk.Stack {
         iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
       ]
     });
-    // キーペア作成
-    const cfnKeyPair = new ec2.CfnKeyPair(this, 'CfnKeyPair', {
-      keyName: 'test-key-pair',
-    })
-    cfnKeyPair.applyRemovalPolicy(RemovalPolicy.DESTROY)
-
-    // キーペア取得コマンドアウトプット
+    // // キーペア作成
+    // const cfnKeyPair = new ec2.CfnKeyPair(this, 'CfnKeyPair', {
+    //   keyName: 'test-key-pair',
+    // })
+    // cfnKeyPair.applyRemovalPolicy(RemovalPolicy.DESTROY)
+    //     // キーペア取得コマンドアウトプット
+    // new CfnOutput(this, 'GetSSHKeyCommand', {
+    //   value: `aws ssm get-parameter --name /ec2/keypair/${cfnKeyPair.getAtt('KeyPairId')} --region ${this.region} --with-decryption --query Parameter.Value --output text`,
+    // })
+    
+    const keyPair = new ec2.KeyPair(this, 'PrivateGenerativeAISampleKeyPair', {
+      type: ec2.KeyPairType.RSA,
+      format: ec2.KeyPairFormat.PEM,
+    });
+            // キーペア取得コマンドアウトプット
     new CfnOutput(this, 'GetSSHKeyCommand', {
-      value: `aws ssm get-parameter --name /ec2/keypair/${cfnKeyPair.getAtt('KeyPairId')} --region ${this.region} --with-decryption --query Parameter.Value --output text`,
+      value: `aws ssm get-parameter --name /ec2/keypair/${keyPair.keyPairId} --region ${this.region} --with-decryption --query Parameter.Value --output text`,
     })
+    
     const windowsInstance = new ec2.Instance(this, 'WindowsInstance', {
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
       machineImage: ec2.MachineImage.latestWindows(ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_BASE),
       vpc: vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
       securityGroup: securityGroup,
-      keyName: Token.asString(cfnKeyPair.ref),
+      keyPair: keyPair,
       role: fleetManagerRole, // iamロールを割り当てる
     });
   }
