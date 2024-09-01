@@ -1,7 +1,6 @@
 // components/Register.js
 
-import { useState, useEffect } from 'react';
-import styles from '../index.module.css';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEnv } from '../EnvProvider';
 import './Login.css';
@@ -13,11 +12,6 @@ const Register = () => {
     const navigate = useNavigate();
     const [error, setError] = useState(null);
     const env = useEnv();
-
-    // useEffect(() => {
-    //     // マウント時の処理などを記述
-    //     fetchData();
-    // }, []);
 
     const fetchData = async () => {
         try {

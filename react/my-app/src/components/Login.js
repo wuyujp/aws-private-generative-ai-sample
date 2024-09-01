@@ -38,8 +38,10 @@ const Login = ({ setIsAuthenticated }) => {
         }
     };
 
+    // // ローカルテスト用
     // const handleLogin = async () => {
     //     navigate('/');
+    //     setIsAuthenticated(true);
     //     localStorage.setItem('jwt', 'dummy');
     // }
 

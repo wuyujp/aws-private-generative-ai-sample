@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import './Chat.css';
 import { v4 as uuidv4 } from 'uuid';
 import { useEnv } from '../EnvProvider';
@@ -52,29 +52,21 @@ const addChatHistory = async (apiUrl, token, userID, chatID, aIModel, message, m
 };
 
 const ChatContainer = () => {
-    const [chatId, setChatId] = useState(null);
-    const [textModelID, setTextModelID] = useState(null);
-    const [userID, setUserID] = useState(null);
+        // 状態の初期化
+    const env = useEnv();
+    const [chatId, setChatId] = useState(uuidv4());
+    const [textModelID] = useState(env.TEXT_MODEL_ID);
+    const [userID] = useState(localStorage.getItem('user'));
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [apiURL, setAPIURL] = useState(null);
-    const [jwtToken, setJwtToken] = useState(null);
-    const env = useEnv();
-
-    useEffect(() => {
-        // コンポーネントマウント時に新しいチャットセッションを開始
-        startNewChat();
-    }, []);
-    const startNewChat = () => {
-        const newChatId = uuidv4();
-        setChatId(newChatId);
-        setUserID(localStorage.getItem('user'));
-        setTextModelID(env.TEXT_MODEL_ID);
-        setAPIURL(env.API_URL);
-        setJwtToken(localStorage.getItem('jwt'));
-        setMessages([]);
-        // ここでバックエンドに新しいチャットセッションの開始を通知することもできます
+    const [apiURL] = useState(env.API_URL);
+    const [jwtToken] = useState(localStorage.getItem('jwt'));
+    
+    const resetChat = () => {
+        setChatId(uuidv4()); // 新しいチャットIDを生成
+        setMessages([]); // メッセージをクリア
     };
+
 
     const addMessage = async (text, sender) => {
         const newMessage = { text, sender, id: Date.now() };
@@ -113,9 +105,10 @@ const ChatContainer = () => {
     };
 
     return (
-        <div className="chat-container">
+    <div className="chat-container">
       <MessageList messages={messages} />
       <InputArea onSendMessage={(text) => addMessage(text, 'user')} isLoading={isLoading} />
+          <button onClick={resetChat} className="reset-button">リセット</button>
     </div>
     );
 };

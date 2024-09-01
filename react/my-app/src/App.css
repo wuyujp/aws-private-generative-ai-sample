@@ -7,6 +7,8 @@
 
 /* ナビゲーションメニュー */
 nav {
+      -webkit-flex-basis: 100;
+    flex-basis: 100;
   width: 200px;
   padding: 20px;
   background-color: #f0f0f0;
@@ -30,44 +32,4 @@ nav a {
 
 nav a:hover {
   color: #3a7bd5;
-}
-
-/* メインコンテンツエリア */
-.content {
-  flex-grow: 1;
-  padding: 20px;
-  background-color: #ffffff;
-  color: #333333;
-}
-
-/* ライトテーマ */
-.light {
-  background-color: #ffffff;
-  color: #333333;
-}
-
-/* レスポンシブデザイン */
-@media (max-width: 768px) {
-  .app {
-    flex-direction: column;
-  }
-
-  nav {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  nav ul {
-    display: flex;
-    justify-content: space-around;
-  }
-
-  nav li {
-    margin-bottom: 0;
-  }
-}
-
-/* 各ルートコンポーネントのスタイル */
-.home, .login, .chat, .rag {
-  padding: 20px;
 }

@@ -59,9 +59,6 @@ export class Auth extends Construct {
         iam.ManagedPolicy.fromAwsManagedPolicyName(
           "service-role/AWSLambdaBasicExecutionRole",
         ),
-        // iam.ManagedPolicy.fromAwsManagedPolicyName(
-        //   "service-role/AWSLambdaVPCAccessExecutionRole",
-        // ),
       ],
     });
 
@@ -88,16 +85,9 @@ export class Auth extends Construct {
         role: lambdaAuthRole,
         timeout: cdk.Duration.seconds(300), // タイムアウトを5分（300秒）に設定
         environment: {
-          //table_name: userTable.tableName,
           cognito_client_id: client.userPoolClientId,
           cognito_user_pool_id: userPool.userPoolId,
         },
-        // vpc: vpc,
-        // vpcSubnets: {
-        //   subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        // },
-        // allowPublicSubnet: false,
-        // securityGroups: [securityGroup],
       },
     );
 
@@ -107,22 +97,6 @@ export class Auth extends Construct {
       // resultsCacheTtl : Duration.seconds(300)
     });
 
-    // // User DynamoDBテーブルの作成
-    // const userTable = new dynamodb.Table(this, "UserTable", {
-    //   tableName: 'PrivateGenerativeAISample' + "Users",
-    //   partitionKey: { name: "UserId", type: dynamodb.AttributeType.STRING },
-    //   //sortKey: { name: 'Email', type: dynamodb.AttributeType.STRING },
-    //   billingMode: dynamodb.BillingMode.PAY_PER_REQUEST, // オンデマンドキャパシティモード
-    //   removalPolicy: cdk.RemovalPolicy.DESTROY,
-    // });
-
-    // // テーブル名をCloudFormationの出力に追加
-    // new cdk.CfnOutput(this, "UserTableName", {
-    //   value: userTable.tableName,
-    //   description: "The name of the user table",
-    //   exportName: "UserTableName",
-    // });
-
     // ログインのLambda関数を追加
     const lambdaFunctionLogin = new lambda.Function(this, "MyLambdaLogin", {
       runtime: lambda.Runtime.PYTHON_3_10,
@@ -131,17 +105,9 @@ export class Auth extends Construct {
       role: lambdaAuthRole,
       timeout: cdk.Duration.seconds(300), // タイムアウトを5分（300秒）に設定
       environment: {
-        //table_name: userTable.tableName,
         cognito_client_id: client.userPoolClientId,
       },
-      // vpc: vpc,
-      // vpcSubnets: {
-      //   subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-      // },
-      // allowPublicSubnet: false,
-      // securityGroups: [securityGroup],
     });
-    //userTable.grantReadWriteData(lambdaFunctionLogin);
     // Lambda関数にCognitoの権限を付与
     lambdaFunctionLogin.addToRolePolicy(
       new iam.PolicyStatement({
@@ -162,18 +128,10 @@ export class Auth extends Construct {
         role: lambdaAuthRole,
         timeout: cdk.Duration.seconds(300), // タイムアウトを5分（300秒）に設定
         environment: {
-          //table_name: userTable.tableName,
           cognito_user_pool_id: userPool.userPoolId,
         },
-        // vpc: vpc,
-        // vpcSubnets: {
-        //   subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        // },
-        // allowPublicSubnet: false,
-        // securityGroups: [securityGroup],
       },
     );
-    //userTable.grantReadWriteData(lambdaFunctionLogin);
 
     const loginItems = privateBackEndApi.root.addResource("login");
     loginItems.addMethod(
