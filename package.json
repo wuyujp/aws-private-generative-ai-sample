@@ -11,7 +11,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "cdk:deploy": "npm run build:react && npm run cdk deploy -- --all --require-approval never"
+    "cdk:deploy": "npm run build:react && npm run cdk deploy -- --all --require-approval never",
+    "cdk:bootstrap": "npm run build:react && npm run bootstrap"
   },
   "devDependencies": {
     "@babel/plugin-transform-private-property-in-object": "^7.24.7",
