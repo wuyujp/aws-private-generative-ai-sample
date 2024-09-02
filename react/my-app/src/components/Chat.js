@@ -2,6 +2,7 @@ import { useState } from "react";
 import './Chat.css';
 import { v4 as uuidv4 } from 'uuid';
 import { useEnv } from '../EnvProvider';
+import MarkdownRenderer from './MarkdownRenderer';
 
 const invokeBedrock = async (apiUrl, token, aIModel, prompt) => {
 
@@ -129,7 +130,7 @@ const MessageList = ({ messages }) => (
 
 const MessageItem = ({ message }) => (
     <div className={`message-item ${message.sender}`}>
-    {message.text}
+        <MarkdownRenderer content={message.text} />
   </div>
 );
 

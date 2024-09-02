@@ -1,0 +1,64 @@
+.markdown-content {
+  line-height: 1.6;
+}
+
+.markdown-content h1 {
+  color: #2c3e50;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 10px;
+}
+
+.markdown-content h2 {
+  color: #34495e;
+  margin-top: 30px;
+}
+
+.markdown-content p {
+  margin-bottom: 15px;
+}
+
+.markdown-content a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+.markdown-content ul {
+  padding-left: 30px;
+}
+
+.markdown-content li {
+  margin-bottom: 5px;
+}
+
+.markdown-content code {
+  background-color: #f8f8f8;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.markdown-content pre {
+  background-color: #1E1E1E;
+  padding: 15px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+ シンタックスハイライターのスタイル調整 
+.markdown-content pre > div {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.markdown-content pre > div > code {
+  background-color: #1E1E1E !important;
+}
+
+.markdown-content pre > code {
+  background-color: #1E1E1E !important;
+  color: #d4d4d4;
+}
