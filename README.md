@@ -86,11 +86,15 @@ npm run cdk:deploy
 5. アプリの Register 画面からユーザーを作成し、そのユーザーでLoginできます。
 6. Chat または RagChat を選択して生成 AI と会話しましょう。
 
+## 削除手順
 
+```bash
+npm run cdk:destroy 
+```
 
 ## 月額料金試算
 ### この構成例の概算料金：
-441.87 ドル (月額)
+442.37 ドル (月額)
 
 | サービス名 | 項目 | 数量 | 単価 | 料金
 | ---- | ---- | ---- | ---- | ---- |
@@ -100,9 +104,10 @@ npm run cdk:deploy
 | | マネージドストレージ | 10 GB | 0.026 USD/GB 1ヶ月あたり | 0.26 |
 | Amazon VPC エンドポイント | エンドポイント数 | 7 | 0.014 USD/エンドポイント 1 時間あたり | 71.54 |
 | | 処理されるデータ | 100 GB | 0.01 USD/GB | 1 |
-| Application Load Balancer | LCU | 1 | 0.008 USD/LCU 1 時間あたり | 22.42 |
+| Application Load Balancer | Load Balancer Capacity Units (LCU)| 1 | 0.008 USD/LCU 1 時間あたり | 22.42 |
 | Amazon API Gateway | REST API リクエスト数 | 15,000 リクエスト | 4.25 USD/100 万リクエスト | 0.06 |
 | AWS Lambda | 割り当てたメモリと実行時間	| 37,500 GB-秒 | 0.000016667 USD/GB-秒あたり | 0.63 |
 | Amazon DynamoDB | オンデマンド 書き込み要求単位 (WRU)	| 1,000,000 WRU	 | 1.4269 USD/100 万 | 1.43 |
 | | ストレージ | 5GB | 0.285 USD/GB	 | 1.43 |
 | Amazon Cognito | アクティブユーザー数 | 50 ユーザー | 0.0055 USD/ユーザー | 0.28 |
+| Amazon Route 53 | ホストゾーン | 1 | 0.5 USD/月 | 0.5 |
