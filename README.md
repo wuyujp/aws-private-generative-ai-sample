@@ -7,7 +7,7 @@ Private Generative AI Sample は閉域網環境での生成AI利用を加速す�
 
 ## アーキテクチャ
 
-この実装では、フロントエンドに React を採用し、静的ファイルは Amazon API Gateway + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証にはカスタム認証と Amazon Cognito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG は Amazon Bedrock Knowledge Bases, データソースには Amazon OpenSearch Serverless を利用しています。
+この実装では、フロントエンドに React を採用し、静的ファイルは Amazon API Gateway + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証にはカスタム認証と Amazon Cognito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG は Amazon Bedrock Knowledge Bases、 データソースには Amazon OpenSearch Serverless を利用しています。
 
   <img src="/imgs/arch.png"/>
 
@@ -82,8 +82,18 @@ npm run cdk:deploy
 1. 利用するリージョンの Amazon Bedrock のコンソールから利用する Embedding Model と Text Model を有効化します。
 2. Amazon Bedrock Knowledge bases のコンソール画面でデータソースを選択して Sync を実施します。
 3. CDK / Cloudformation の Outputs から `PrivateGenerativeAiSampleClientStack.GetSSHKeyCommand` で SSH Key を取得し、Fleet Manager で Private Subnet にある Windows に RDP 接続します。
-4. 同じOutputs から `PrivateGenerativeAiSampleAppStack.PrivateApplicationURL` のU RL をブラウザーに入力しウェブアプリケーションにアクセスします。
+4. 同じ Outputs から `PrivateGenerativeAiSampleAppStack.PrivateApplicationURL` の URL をブラウザーに入力しウェブアプリケーションにアクセスします。
 5. アプリの Register 画面からユーザーを作成し、そのユーザーでLoginできます。
-6. Chat または RagChat を選択して生成AIと会話しましょう。
+6. Chat または RagChat を選択して生成 AI と会話しましょう。
+
+
+
+## 月額料金試算
+
+| サービス名 | 項目 | 数量 | 単価 | 料金
+| ---- | ---- | ---- | ---- | ---- |
+| Amazon Bedrock	 | Claude 3.5 Sonnet 入力トークン | 11,000,000 トークン | 0.003 USD/1000 トークンあたり | 33 |
+| | Claude 3.5 Sonnet 出力トークン | 4,400,000 トークン | 0.015 USD/1000 トークンあたり | 66 |
+| Amazon Bedrock Knowledge bases	 | OpenSearch Compute Unit (OCU) | 1 OCU | 0.334 USD/OCU 1 時間あたり | 240.48 |
 
 
