@@ -131,7 +131,6 @@ export class FrontendWeb extends Construct {
     });
     const executeRole = new iam.Role(this, "api-gateway-s3-assume-tole", {
       assumedBy: new iam.ServicePrincipal("apigateway.amazonaws.com"),
-      roleName: "API-Gateway-S3-Integration-Role",
     });
 
     executeRole.addToPolicy(

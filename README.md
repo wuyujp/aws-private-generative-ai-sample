@@ -91,6 +91,7 @@ npm run cdk:deploy
 ```bash
 npm run cdk:destroy 
 ```
+全タスク削除の確認が出ってきましたら `y` を入力してください。
 
 ## 月額料金試算
 ### この構成例の概算料金：
