@@ -102,12 +102,12 @@ npm run cdk:destroy
 | | Claude 3.5 Sonnet 出力トークン | 4,400,000 トークン | 0.015 USD/1000 トークンあたり | 66 |
 | OpenSearch Serverless | OpenSearch Compute Unit (OCU) | 1 OCU | 0.334 USD/OCU 1 時間あたり | 243.82 |
 | | マネージドストレージ | 10 GB | 0.026 USD/GB 1ヶ月あたり | 0.26 |
-| Amazon VPC エンドポイント | エンドポイント数 | 7 | 0.014 USD/エンドポイント 1 時間あたり | 71.54 |
+| Amazon VPC エンドポイント | エンドポイント数 | 7 個 | 0.014 USD/エンドポイント 1 時間あたり | 71.54 |
 | | 処理されるデータ | 100 GB | 0.01 USD/GB | 1 |
-| Application Load Balancer | Load Balancer Capacity Units (LCU)| 1 | 0.008 USD/LCU 1 時間あたり | 22.42 |
+| Application Load Balancer | Load Balancer Capacity Units (LCU)| 1 LCU | 0.008 USD/LCU 1 時間あたり | 22.42 |
 | Amazon API Gateway | REST API リクエスト数 | 15,000 リクエスト | 4.25 USD/100 万リクエスト | 0.06 |
 | AWS Lambda | 割り当てたメモリと実行時間	| 37,500 GB-秒 | 0.000016667 USD/GB-秒あたり | 0.63 |
 | Amazon DynamoDB | オンデマンド 書き込み要求単位 (WRU)	| 1,000,000 WRU	 | 1.4269 USD/100 万 | 1.43 |
-| | ストレージ | 5GB | 0.285 USD/GB	 | 1.43 |
+| | ストレージ | 5 GB | 0.285 USD/GB	 | 1.43 |
 | Amazon Cognito | アクティブユーザー数 | 50 ユーザー | 0.0055 USD/ユーザー | 0.28 |
-| Amazon Route 53 | ホストゾーン | 1 | 0.5 USD/月 | 0.5 |
+| Amazon Route 53 | ホストゾーン | 1 個 | 0.5 USD/月 | 0.5 |
