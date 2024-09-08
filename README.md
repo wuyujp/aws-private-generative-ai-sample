@@ -94,14 +94,14 @@ npm run cdk:destroy
 
 ## 月額料金試算
 ### この構成例の概算料金：
-442.37 ドル (月額)
+443.41 ドル (月額)
 
 | サービス名 | 項目 | 数量 | 単価 | 料金
 | ---- | ---- | ---- | ---- | ---- |
 | Amazon Bedrock | Claude 3.5 Sonnet 入力トークン | 11,000,000 トークン | 0.003 USD/1000 トークンあたり | 33 |
 | | Claude 3.5 Sonnet 出力トークン | 4,400,000 トークン | 0.015 USD/1000 トークンあたり | 66 |
 | OpenSearch Serverless | OpenSearch Compute Unit (OCU) | 1 OCU | 0.334 USD/OCU 1 時間あたり | 243.82 |
-| | マネージドストレージ | 10 GB | 0.026 USD/GB 1ヶ月あたり | 0.26 |
+| | マネージドストレージ | 50 GB | 0.026 USD/GB 1ヶ月あたり | 1.3 |
 | Amazon VPC エンドポイント | エンドポイント数 | 7 個 | 0.014 USD/エンドポイント 1 時間あたり | 71.54 |
 | | 処理されるデータ | 100 GB | 0.01 USD/GB | 1 |
 | Application Load Balancer | Load Balancer Capacity Units (LCU)| 1 LCU | 0.008 USD/LCU 1 時間あたり | 22.42 |
