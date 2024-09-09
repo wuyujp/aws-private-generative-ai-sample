@@ -51,6 +51,9 @@ const privateGenerativeAISampleClientStack = privateClientEnabled
       {
         vpc: privateGenerativeAISampleVpcStack.vpc,
         securityGroup: privateGenerativeAISampleVpcStack.securityGroup,
+        dataSourceBucketName:
+      privateGenerativeAISampleRagStack?.dataSourceBucketName,
+      privateS3VpcEndpoint : privateGenerativeAISampleVpcStack.privateS3VpcEndpoint,
       },
     )
   : null;

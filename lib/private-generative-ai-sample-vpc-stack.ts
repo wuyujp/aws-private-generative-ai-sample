@@ -6,6 +6,8 @@ import * as oss from "aws-cdk-lib/aws-opensearchserverless";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as cr from "aws-cdk-lib/custom-resources";
+import * as route53 from "aws-cdk-lib/aws-route53";
+import * as route53Targets from "aws-cdk-lib/aws-route53-targets";
 
 import {
   AwsCustomResource,
@@ -45,6 +47,7 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
   public readonly vpc: ec2.IVpc;
   public readonly securityGroup: ec2.SecurityGroup;
   public readonly privateApiVpcEndpoint: ec2.InterfaceVpcEndpoint;
+  public readonly privateS3VpcEndpoint: ec2.InterfaceVpcEndpoint;
   public readonly privateApiVpcEndpointIpAdressList: string[];
   public readonly privateOssVpcEndpoint: oss.CfnVpcEndpoint;
 
@@ -149,7 +152,7 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
       );
       this.privateOssVpcEndpoint.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
 
-      this.vpc.addInterfaceEndpoint("privateS3VpcEndpoint", {
+      this.privateS3VpcEndpoint = this.vpc.addInterfaceEndpoint("privateS3VpcEndpoint", {
         service: ec2.InterfaceVpcEndpointAwsService.S3,
         subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
         securityGroups: [this.securityGroup],
