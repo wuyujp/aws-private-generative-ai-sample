@@ -40,8 +40,10 @@ const Register = () => {
             }
 
             console.log('Registration successful!', data);
-            navigate('/login'); // 登録後にログインページにリダイレクト
-            // ここでトークンを保存するなどの処理を行う
+            setError('Registration successful! Redirect to Login page in 5 seconds');
+            setTimeout(() => {
+                navigate('/login'); // 登録後にログインページにリダイレクト
+            }, 5000);
         }
         catch (error) {
             console.error('Registration failed:', error);

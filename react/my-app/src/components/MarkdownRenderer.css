@@ -13,7 +13,7 @@
   margin-top: 30px;
 }
 
-.markdown-content p {
+.message-item.bot>.markdown-content p {
   margin-bottom: 15px;
 }
 
@@ -48,17 +48,16 @@
   overflow-x: auto;
 }
 
- シンタックスハイライターのスタイル調整 
-.markdown-content pre > div {
+シンタックスハイライターのスタイル調整 .markdown-content pre>div {
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.markdown-content pre > div > code {
+.markdown-content pre>div>code {
   background-color: #1E1E1E !important;
 }
 
-.markdown-content pre > code {
+.markdown-content pre>code {
   background-color: #1E1E1E !important;
   color: #d4d4d4;
 }

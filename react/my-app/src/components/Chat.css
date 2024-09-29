@@ -1,4 +1,6 @@
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -7,7 +9,7 @@ html, body, #root {
 .reset-button {
   position: absolute;
   right: 15px;
-  top: 88%;
+  top: 30px;
   transform: translateY(-50%);
   width: 40px;
   height: 40px;
@@ -24,7 +26,7 @@ html, body, #root {
 }
 
 .reset-button:hover {
-    background-color: #d32f2f;
+  background-color: #d32f2f;
 }
 
 .chat-container {
@@ -56,6 +58,7 @@ html, body, #root {
   background-color: #e6f2ff;
   align-self: flex-start;
   margin-right: auto;
+  padding: 10px;
 }
 
 .message-item.bot {
@@ -75,7 +78,7 @@ html, body, #root {
 .input-area input {
   flex: 1;
   padding: 10px;
-  padding-right: 50px; 
+  padding-right: 50px;
   font-size: 16px;
   border: 1px solid #ddd;
   border-radius: 4px;
