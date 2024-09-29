@@ -5,6 +5,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Chat from './components/Chat';
 import RagChat from './components/RagChat';
+import Setting from './components/Setting';
 import { EnvProvider } from './EnvProvider';
 
 import { useState, useEffect } from 'react';
@@ -47,12 +48,15 @@ function App() {
                   <li>
                     <Link to="/ragchat">RagChat</Link>
                   </li>
+                  <li>
+                    <Link to="/setting">Setting</Link>
+                  </li>
                 </>
               ) : (
                 <>
                   <li>
                     <Link to="/login">Login</Link>
-                  </li>             
+                  </li>
                   <li>
                     <Link to="/register">Register</Link>
                   </li>
@@ -62,7 +66,7 @@ function App() {
           </nav>
 
           <Routes>
-             <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+            <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
             <Route path="/register" element={<Register />} />
             <Route path="/" element={<Navigate to="/home" replace />} />
             <Route
@@ -76,6 +80,10 @@ function App() {
             <Route
               path="/ragchat"
               element={<PrivateRoute isAuthenticated={isAuthenticated}><RagChat /></PrivateRoute>}
+            />
+            <Route
+              path="/setting"
+              element={<PrivateRoute isAuthenticated={isAuthenticated}><Setting setIsAuthenticated={setIsAuthenticated} /></PrivateRoute>}
             />
           </Routes>
         </div>
