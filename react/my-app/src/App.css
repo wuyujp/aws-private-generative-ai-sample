@@ -7,9 +7,9 @@
 
 /* ナビゲーションメニュー */
 nav {
-      -webkit-flex-basis: 100;
-    flex-basis: 100;
-  width: 200px;
+  -webkit-flex-basis: 100;
+  flex-basis: 100;
+  width: 168px;
   padding: 20px;
   background-color: #f0f0f0;
 }
@@ -32,4 +32,12 @@ nav a {
 
 nav a:hover {
   color: #3a7bd5;
+}
+
+h1 {
+  display: inline-block;
+  font-weight: bold;
+  border-bottom: solid 3px #000;
+  margin: 0 0 5px;
+  padding: 0 0 5px 0;
 }

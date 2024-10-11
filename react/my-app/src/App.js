@@ -40,6 +40,9 @@ function App() {
         <div className={`app`}>
           <nav>
             <ul>
+              <li>
+                <h1>Private Generative AI Sample</h1>
+              </li>
               {isAuthenticated ? (
                 <>
                   <li>

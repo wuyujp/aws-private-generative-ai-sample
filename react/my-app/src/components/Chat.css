@@ -67,6 +67,10 @@ body,
   margin-left: auto;
 }
 
+.message-item.bot ol {
+  margin-left: 20px;
+}
+
 .input-area {
   display: flex;
   padding: 10px;
