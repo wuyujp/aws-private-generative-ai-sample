@@ -65,6 +65,8 @@ body,
   background-color: #f0f0f0;
   align-self: flex-end;
   margin-left: auto;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
 }
 
 .message-item.bot ol {
@@ -73,6 +75,7 @@ body,
 
 .input-area {
   display: flex;
+  flex-direction: column;
   padding: 10px;
   background-color: #f8f8f8;
   position: relative;
@@ -112,4 +115,19 @@ body,
 .input-area button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+ul {
+  padding-left: 30px;
+}
+
+.message-links {
+  margin-top: 20px;
+  margin-bottom: 15px;
 }
