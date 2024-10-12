@@ -4,12 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { useEnv } from '../EnvProvider';
 import MarkdownRenderer from './MarkdownRenderer';
 
-const invokeBedrock = async (apiUrl, token, aIModel, prompt) => {
+const invokeBedrock = async (apiUrl, token, aIModel, prompt, systemPrompt) => {
 
     console.log("prompt:", JSON.stringify({ prompt }));
 
     const payload = {
         prompt: prompt,
+        systemPrompt: systemPrompt,
         aiModel: aIModel,
     };
 
@@ -62,9 +63,9 @@ const ChatContainer = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [apiURL] = useState(env.API_URL);
     const [jwtToken] = useState(localStorage.getItem('jwt'));
-    
+
     // //ローカルテスト用
-        
+
     // const [chatId, setChatId] = useState(uuidv4());
     // const [textModelID] = useState('dummy');
     // const [userID] = useState('dummy');
@@ -72,15 +73,15 @@ const ChatContainer = () => {
     // const [isLoading, setIsLoading] = useState(false);
     // const [apiURL] = useState('dummy');
     // const [jwtToken] = useState(localStorage.getItem('jwt'));
-    
-    
+
+
     const resetChat = () => {
         setChatId(uuidv4()); // 新しいチャットIDを生成
         setMessages([]); // メッセージをクリア
     };
 
 
-    const addMessage = async (text, sender) => {
+    const addMessage = async (text, systemPrompt, sender) => {
         const newMessage = { text, sender, id: Date.now() };
         setMessages(prevMessages => [...prevMessages, newMessage]);
         if (sender === 'user') {
@@ -93,7 +94,7 @@ const ChatContainer = () => {
                 // 新しいユーザーメッセージを追加
                 const fullConversation = `${conversationHistory}\nUser: ${text}`;
                 console.log('messagesHistory', fullConversation);
-                const apiResponse = await invokeBedrock(apiURL, jwtToken, textModelID, fullConversation);
+                const apiResponse = await invokeBedrock(apiURL, jwtToken, textModelID, fullConversation, systemPrompt);
 
                 const botMessage = { text: apiResponse, sender: 'bot', id: Date.now() };
                 await setMessages(prevMessages => [...prevMessages, botMessage]);
@@ -112,52 +113,65 @@ const ChatContainer = () => {
     };
 
     return (
-    <div className="chat-container">
-      <MessageList messages={messages} />
-      <InputArea onSendMessage={(text) => addMessage(text, 'user')} isLoading={isLoading} />
-          <button onClick={resetChat} className="reset-button">リセット</button>
-    </div>
+        <div className="chat-container">
+            <MessageList messages={messages} />
+            <InputArea onSendMessage={(text, systemPrompt) => addMessage(text, systemPrompt, 'user')} isLoading={isLoading} />
+            <button onClick={resetChat} className="reset-button">リセット</button>
+        </div>
     );
 };
 
 const MessageList = ({ messages }) => (
     <div className="message-list">
-    {messages.map((message) => (
-      <MessageItem key={message.id} message={message} />
-    ))}
-  </div>
+        {messages.map((message) => (
+            <MessageItem key={message.id} message={message} />
+        ))}
+    </div>
 );
 
 const MessageItem = ({ message }) => (
     <div className={`message-item ${message.sender}`}>
         <MarkdownRenderer content={message.text} />
-  </div>
+    </div>
 );
 
 const InputArea = ({ onSendMessage, isLoading }) => {
     const [input, setInput] = useState('');
+    const [systemPrompt, setSystemPrompt] = useState('あなたは優秀なAIアシスタントです。');
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (input.trim() && !isLoading) {
-            onSendMessage(input);
+            onSendMessage(input, systemPrompt);
             setInput('');
         }
     };
 
     return (
-    <form onSubmit={handleSubmit} className="input-area">
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="メッセージを入力..."
-        disabled={isLoading}
-      />
-      <button type="submit" disabled={isLoading}>
-        {isLoading ? '送信中...' : '送信'}
-      </button>
-    </form>
+        <form onSubmit={handleSubmit} className="input-area">
+            <div className="input-group">
+                <span className="input-label">システム　</span>
+                <input
+                    type="text"
+                    value={systemPrompt}
+                    onChange={(e) => setSystemPrompt(e.target.value)}
+                    placeholder="あなたは優秀なAIアシスタントです。"
+                />
+            </div>
+            <div className="input-group">
+                <label htmlFor="input1">ユーザー　</label>
+                <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="メッセージを入力..."
+                    disabled={isLoading}
+                />
+            </div>
+            <button type="submit" disabled={isLoading}>
+                {isLoading ? '送信中...' : '送信'}
+            </button>
+        </form>
     );
 };
 
