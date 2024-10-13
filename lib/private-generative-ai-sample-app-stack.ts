@@ -71,10 +71,10 @@ export class PrivateGenerativeAISampleAppStack extends cdk.Stack {
       apiURL: backendApi.apiURL,
       textModelId: textModelId,
     });
-    
-        // 出力
+
+    // 出力
     new cdk.CfnOutput(this, 'PrivateApplicationURL', {
-      value: subDomainName+ "." + domainName,
+      value: "https://" + subDomainName + "." + domainName,
       description: 'PrivateApplicationURL',
     });
   }
