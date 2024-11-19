@@ -42,7 +42,7 @@ Private Generative AI Sample は閉域網環境での生成AI利用を加速す�
   - 証明書のドメイン名
 
 > [!IMPORTANT]
-> ウェブアプリケーションへのアクセスにHTTPS通信が必須のため証明書は必要です。認証されたドメインの証明書登録が難しい場合は、信頼されていないドメインへのアクセスを許可する前提で、自己証明書も一応利用可能です。自己証明書の登録手順はこちらご参照ください。[CloudShellでサクッと自己証明書を作成してACMにインポートする](https://dev.classmethod.jp/articles/aws-acm-import-cloudshell/)
+> ウェブアプリケーションへのアクセスにHTTPS通信が必須のため証明書は必要です。認証されたドメインの証明書登録が難しい場合は、`sh tool/create_ca.sh`を実行し、`domainName`を入力して自己証明書をACMに登録できます。
 
 <img src="/imgs/acm.png"/>
 

@@ -19,8 +19,8 @@
   "context": {
     "ragKnowledgeBaseEnabled": true,
     "privateClientEnabled": true,
-    "embeddingModelId": "amazon.titan-embed-text-v2:0",
-    "textModelId": "anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "embeddingModelId": "amazon.titan-embed-text-v1",
+    "textModelId": "anthropic.claude-3-haiku-20240307-v1:0",
     "certificateArn": "",
     "domainName": "",
     "subDomainName": "private-genai-sample",
