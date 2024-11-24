@@ -11,7 +11,7 @@ export interface AuthProps {
 }
 
 export class Auth extends Construct {
-  readonly authorizer: apigw.TokenAuthorizer;
+  readonly authorizer: apigw.CognitoUserPoolsAuthorizer;
 
   constructor(scope: Construct, id: string, props: AuthProps) {
     super(scope, id);
@@ -52,7 +52,7 @@ export class Auth extends Construct {
       description: "The id of the user pool",
     });
 
-    // Lambda Authorizer IAMロール作成
+    // LambdaのIAMロール作成
     const lambdaAuthRole = new iam.Role(this, "lambdaAuthRole", {
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
       managedPolicies: [
@@ -74,27 +74,11 @@ export class Auth extends Construct {
       }),
     );
 
-    // Lambda Authorizer 関数の作成
-    const lambdaFunctionAuthorizer = new lambda.Function(
-      this,
-      "MyLambdaAuthorizer",
-      {
-        runtime: lambda.Runtime.PYTHON_3_10,
-        code: lambda.Code.fromAsset("lambda/Authorizer"),
-        handler: "authorizer.lambda_handler",
-        role: lambdaAuthRole,
-        timeout: cdk.Duration.seconds(300), // タイムアウトを5分（300秒）に設定
-        environment: {
-          cognito_client_id: client.userPoolClientId,
-          cognito_user_pool_id: userPool.userPoolId,
-        },
-      },
-    );
-
-    // Lambda Authorizer の作成
-    this.authorizer = new apigw.TokenAuthorizer(this, "ApiAuthorizer", {
-      handler: lambdaFunctionAuthorizer,
-      // resultsCacheTtl : Duration.seconds(300)
+    // Cognito Authorizer の作成
+    this.authorizer = new apigw.CognitoUserPoolsAuthorizer(this, 'CognitoApiAuthorizer', {
+      cognitoUserPools: [userPool],
+      resultsCacheTtl: Duration.minutes(5),
+      identitySource: 'method.request.header.Authorization',
     });
 
     // ログインのLambda関数を追加
@@ -115,9 +99,7 @@ export class Auth extends Construct {
         resources: [userPool.userPoolArn],
       }),
     );
-
-    // サインアップのLambda関数を追加
-
+    // ユーザー登録Lambda
     const lambdaFunctionRegister = new lambda.Function(
       this,
       "MyLambdaRegister",

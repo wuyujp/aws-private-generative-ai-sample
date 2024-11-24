@@ -10,7 +10,7 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 export interface ChatHistoryProps {
   vpc: ec2.IVpc;
   securityGroup: ec2.SecurityGroup;
-  authorizer: apigw.TokenAuthorizer;
+  authorizer: apigw.CognitoUserPoolsAuthorizer;
   privateBackEndApi: apigw.LambdaRestApi;
 }
 
@@ -82,10 +82,12 @@ export class ChatHistory extends Construct {
     addChatHistoryItems.addMethod(
       "POST",
       new apigw.LambdaIntegration(lambdaFunctionAddChatHistory),
-            { authorizer: authorizer,
-      authorizationType: apigw.AuthorizationType.CUSTOM,},
+      {
+        authorizer: authorizer,
+        authorizationType: apigw.AuthorizationType.COGNITO,
+      },
     );
-    
-    
+
+
   }
 }

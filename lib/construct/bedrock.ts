@@ -8,7 +8,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 export interface BedrockProps {
   vpc: ec2.IVpc;
   securityGroup: ec2.SecurityGroup;
-  authorizer: apigw.TokenAuthorizer;
+  authorizer: apigw.CognitoUserPoolsAuthorizer;
   privateBackEndApi: apigw.LambdaRestApi;
   dataSourceBucketName?: string;
   knowledgeBaseId?: string;
@@ -67,7 +67,7 @@ export class Bedrock extends Construct {
       new apigw.LambdaIntegration(lambdaFunctionInvokeBedrock),
       {
         authorizer: authorizer,
-        authorizationType: apigw.AuthorizationType.CUSTOM,
+        authorizationType: apigw.AuthorizationType.COGNITO,
       },
     );
 
@@ -118,7 +118,7 @@ export class Bedrock extends Construct {
         new apigw.LambdaIntegration(lambdaFunctionInvokeBedrockKB),
         {
           authorizer: authorizer,
-          authorizationType: apigw.AuthorizationType.CUSTOM,
+          authorizationType: apigw.AuthorizationType.COGNITO,
         },
       );
     }
