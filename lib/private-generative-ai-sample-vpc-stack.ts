@@ -5,9 +5,6 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as oss from "aws-cdk-lib/aws-opensearchserverless";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
-import * as cr from "aws-cdk-lib/custom-resources";
-import * as route53 from "aws-cdk-lib/aws-route53";
-import * as route53Targets from "aws-cdk-lib/aws-route53-targets";
 
 import {
   AwsCustomResource,
@@ -59,9 +56,9 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
     const azInfo = new GetAZs(this, 'GetAZs');
     azInfo.customResourceHandler.addToRolePolicy(
       new iam.PolicyStatement({
-          actions: ["ec2:DescribeAvailabilityZones"],
-          resources: ["*"],
-        }),
+        actions: ["ec2:DescribeAvailabilityZones"],
+        resources: ["*"],
+      }),
     );
     // オブジェクト単位取得できないため、az1とaz2のIDAZ名別々で取得
     const az1 = azInfo.customResource.getAttString("az1");
@@ -152,11 +149,19 @@ export class PrivateGenerativeAISampleVpcStack extends cdk.Stack {
       );
       this.privateOssVpcEndpoint.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
 
+      // presign urlのDNS解決のため
+      // InterfaceタイプVPCエンドポイントのprivateDnsEnabled有効化するためにGatewayタイプエンドポイントを作成するか、
+      // またはprivateDnsOnlyForInboundResolverEndpointがFalse前提で作る必要がある
+      // 後者はCDK未対応のため、Gatewayタイプエンドポイントも作成しておく。
+      this.vpc.addGatewayEndpoint("privateS3GatewayEndpoint", {
+        service: ec2.GatewayVpcEndpointAwsService.S3,
+      });
+
       this.privateS3VpcEndpoint = this.vpc.addInterfaceEndpoint("privateS3VpcEndpoint", {
         service: ec2.InterfaceVpcEndpointAwsService.S3,
         subnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
         securityGroups: [this.securityGroup],
-        privateDnsEnabled: false,
+        privateDnsEnabled: true,
       });
     }
   }

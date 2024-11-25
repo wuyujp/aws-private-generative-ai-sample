@@ -4,8 +4,6 @@ import { StackProps } from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { CfnOutput, RemovalPolicy, Token } from "aws-cdk-lib";
-import * as route53 from "aws-cdk-lib/aws-route53";
-import * as route53Targets from "aws-cdk-lib/aws-route53-targets";
 
 interface PrivateGenerativeAISampleClientStackProps extends StackProps {
   vpc: ec2.IVpc;
@@ -62,24 +60,6 @@ export class PrivateGenerativeAISampleClientStack extends cdk.Stack {
       },
     );
 
-    if (this.node.tryGetContext("ragKnowledgeBaseEnabled")) {
-      // RAG Presigned URL用S3 VPC エンドポイントも本来必要だが、バックエンドと同じVPCを共有するため、vpcスタックで作成済みのものを利用
-      // 名前解決するためのPrivate Host Zoneを作成
-      // Route53
-      const zone = new route53.PrivateHostedZone(this, "HostedZone", {
-        zoneName: dataSourceBucketName + "." + "s3.amazonaws.com",
-        vpc: vpc, 
-      });
-
-      new route53.ARecord(this, "AliasRecord", {
-        recordName: dataSourceBucketName + "." + "s3.amazonaws.com",
-        zone: zone,
-        target: route53.RecordTarget.fromAlias(
-          new route53Targets.InterfaceVpcEndpointTarget(privateS3VpcEndpoint),
-        ),
-        deleteExisting: true,
-      });
-    }
     // Private Windows
     const fleetManagerRole = new iam.Role(this, "FleetManagerRole", {
       assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
