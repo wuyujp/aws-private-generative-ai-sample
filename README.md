@@ -7,7 +7,7 @@ Private Generative AI Sample は閉域網環境での生成AI利用を加速す�
 
 ## アーキテクチャ
 
-この実装では、フロントエンドに React を採用し、静的ファイルは Amazon API Gateway + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証にはカスタム認証と Amazon Cognito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG は Amazon Bedrock Knowledge Bases、 データソースには Amazon OpenSearch Serverless を利用しています。
+この実装では、フロントエンドに React を採用し、静的ファイルは Amazon API Gateway + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Cognito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG は Amazon Bedrock Knowledge Bases、 データソースには Amazon OpenSearch Serverless を利用しています。
 
   <img src="/imgs/arch.png"/>
 
