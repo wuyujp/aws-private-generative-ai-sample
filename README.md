@@ -42,7 +42,7 @@ Private Generative AI Sample は閉域網環境での生成AI利用を加速す�
   - 証明書のドメイン名
 
 > [!IMPORTANT]
-> ウェブアプリケーションへのアクセスにHTTPS通信が必須のため証明書は必要です。認証されたドメインの証明書登録が難しい場合は、`sh tool/create_ca.sh`を実行し、`domainName`を入力して自己証明書をACMに登録できます。
+> ウェブアプリケーションへのアクセスにHTTPS通信が必須のため証明書は必要です。認証されたドメインの証明書登録が難しい場合は、`sh tool/create_ca.sh`を実行し、`example.com`などのドメイン名を入力して自己証明書をACMに登録できます。
 
 <img src="/imgs/acm.png"/>
 
